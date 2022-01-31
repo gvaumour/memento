@@ -4,6 +4,8 @@ import os
 import pyglet
 import random
 
+import server_management
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Pictos printed on buttons 
@@ -12,19 +14,11 @@ PATH_BUTTONS_PICTO = os.path.realpath(os.path.join(dir_path, "./pictos/picto_but
 # Picto not printed on buttons, they are called noise pictos
 PATH_NOISE_PICTO = os.path.realpath(os.path.join(dir_path, "./pictos/picto_noise"))
 
-def isCorrectPicto(picto_path):
-    # To be improved with other criteria 
-    if os.path.isfile(picto_path):
-        return True
-
-path_buttons_picto = [os.path.join(PATH_BUTTONS_PICTO, f) for f in os.listdir(PATH_BUTTONS_PICTO) if isCorrectPicto(os.path.join(PATH_BUTTONS_PICTO, f))]
-path_noise_picto = [os.path.join(PATH_NOISE_PICTO, f) for f in os.listdir(PATH_NOISE_PICTO) if isCorrectPicto(os.path.join(PATH_NOISE_PICTO, f))]
-
-
 
 ################################# 
 # GAME PARAMETERS 
 
+ID_ROOM = 15          # ID used to identify the room by the server
 ROUND_TIME = 10       # Number of seconds per round 
 NB_NOISE_PICTO = 8    # Number of picto displayed on top of the correct one
 TOTAL_PICTO = NB_NOISE_PICTO + 1
@@ -37,6 +31,43 @@ POS_PICTO_Y = 0.27    # Ratio for positionning picto Y axis
 
 
 window = pyglet.window.Window(fullscreen=True)
+
+game_state_running = False
+
+picto_position = [ [window.width/2, window.height/2 + window.height*POS_PICTO_Y], 
+                   [window.width/2, window.height/2 - window.height*POS_PICTO_Y],
+                   [window.width/2 + window.width*POS_PICTO_X, window.height/2],
+                   [window.width/2 - window.width*POS_PICTO_X, window.height/2], 
+                   [window.width/2 + window.width*POS_PICTO_X, window.height/2 + window.height*POS_PICTO_Y],
+                   [window.width/2 + window.width*POS_PICTO_X, window.height/2 - window.height*POS_PICTO_Y],
+                   [window.width/2 - window.width*POS_PICTO_X, window.height/2 - window.height*POS_PICTO_Y],
+                   [window.width/2 - window.width*POS_PICTO_X, window.height/2 + window.height*POS_PICTO_Y],
+                   [window.width/2, window.height/2],
+                ]
+
+assert(len(picto_position) == TOTAL_PICTO)
+
+
+def isCorrectPicto(picto_path):
+    # To be improved with other criteria 
+    if os.path.isfile(picto_path):
+        return True
+
+def resize_image(image, array):
+    width = 512
+
+    image.anchor_x = image.width // 2
+    image.anchor_y = image.height // 2
+    image_sprite = pyglet.sprite.Sprite(image, x=window.width//2, y = window.height//2)
+    image_sprite.scale = width / window.width
+    array.append(image_sprite)
+
+def resize_images():
+    for image in img_buttons_picto:
+        resize_image(image, sprite_buttons_picto)
+    for image in img_noise_picto:
+        resize_image(image, sprite_noise_picto)
+
 
 class Board:
     def __init__(self):
@@ -95,18 +126,27 @@ class Timer:
             if (self.time <= 0):
                 board.do_next_round()
                 self.time = ROUND_TIME
-            self.label.text = '%01d' % (self.time)
+            self.label.text = '%01d' % (round(self.time))
 
 
 
 
 @window.event
 def on_key_press(symbol, modifiers):
-    if symbol == pyglet.window.key.SPACE:
-        timer.reset()
-        timer.running = True
-    elif symbol == pyglet.window.key.ESCAPE:
+    global game_state_running
+    if game_state_running == True: 
+        if symbol == pyglet.window.key.SPACE:
+            timer.reset()
+            timer.running = True
+
+    if symbol == pyglet.window.key.ESCAPE:
         window.close()
+    elif symbol == pyglet.window.key.ENTER:
+        game_state_running = True
+        timer.reset()
+    elif symbol == pyglet.window.key.BACKSPACE:
+        game_state_running = False
+        timer.running = False
 
 
 @window.event
@@ -115,12 +155,20 @@ def on_draw():
 
     background_sprite.draw()
 
-    timer.label.draw()
-    score.label.draw()
+    if game_state_running == True: 
+        timer.label.draw()
+        score.label.draw()
 
-    board.displayed_button_picto.draw()
-    for sprites in board.displayed_noise_picto:
-        sprites.draw()
+        board.displayed_button_picto.draw()
+        for sprites in board.displayed_noise_picto:
+            sprites.draw()
+
+    else: 
+        waiting_label.draw()
+
+
+path_buttons_picto = [os.path.join(PATH_BUTTONS_PICTO, f) for f in os.listdir(PATH_BUTTONS_PICTO) if isCorrectPicto(os.path.join(PATH_BUTTONS_PICTO, f))]
+path_noise_picto = [os.path.join(PATH_NOISE_PICTO, f) for f in os.listdir(PATH_NOISE_PICTO) if isCorrectPicto(os.path.join(PATH_NOISE_PICTO, f))]
 
 
 img_buttons_picto = [pyglet.image.load(f) for f in path_buttons_picto]
@@ -129,47 +177,35 @@ img_noise_picto = [pyglet.image.load(f) for f in path_noise_picto]
 sprite_buttons_picto = []
 sprite_noise_picto = []
 
-def resize_image(image, array):
-    width = 512
-
-    image.anchor_x = image.width // 2
-    image.anchor_y = image.height // 2
-    image_sprite = pyglet.sprite.Sprite(image, x=window.width//2, y = window.height//2)
-    image_sprite.scale = width / window.width
-    array.append(image_sprite)
-
-def resize_images():
-    for image in img_buttons_picto:
-        resize_image(image, sprite_buttons_picto)
-    for image in img_noise_picto:
-        resize_image(image, sprite_noise_picto)
-
 resize_images()
+
 
 background = pyglet.image.load( os.path.join(dir_path, "./pictos/background.png"))
 background.anchor_x = background.width // 2
 background.anchor_y = background.height // 2
 background_sprite = pyglet.sprite.Sprite(background, x=window.width//2, y = window.height//2)
-
 background_sprite.scale = 2
 
 
-picto_position = [ [window.width/2, window.height/2 + window.height*POS_PICTO_Y], 
-                   [window.width/2, window.height/2 - window.height*POS_PICTO_Y],
-                   [window.width/2 + window.width*POS_PICTO_X, window.height/2],
-                   [window.width/2 - window.width*POS_PICTO_X, window.height/2], 
-                   [window.width/2 + window.width*POS_PICTO_X, window.height/2 + window.height*POS_PICTO_Y],
-                   [window.width/2 + window.width*POS_PICTO_X, window.height/2 - window.height*POS_PICTO_Y],
-                   [window.width/2 - window.width*POS_PICTO_X, window.height/2 - window.height*POS_PICTO_Y],
-                   [window.width/2 - window.width*POS_PICTO_X, window.height/2 + window.height*POS_PICTO_Y],
-                   [window.width/2, window.height/2],
-                ]
 
-assert(len(picto_position) == TOTAL_PICTO)
+if __name__ == "__main__":
+    
+    # Instantiate the game elements
+    timer = Timer()
+    score = Score()
+    board = Board()
 
-timer = Timer()
-score = Score()
-board = Board()
-pyglet.clock.schedule_interval(timer.update, 1/30.0)
-pyglet.app.run()
+    waiting_label = pyglet.text.Label('Waiting for game to start', font_size=100, 
+                                       x=window.width//2, y= window.height//2,
+                                       anchor_x='center', anchor_y='center')
+
+
+    server_management.send_request_score(100, ID_ROOM)
+    pyglet.clock.schedule_interval(timer.update, 1/30.0)
+    pyglet.app.run()
+
+
+    #namespace = parser.parse_args()
+    #trio.run(main, namespace.bind, namespace.port, namespace.command)
+
 
