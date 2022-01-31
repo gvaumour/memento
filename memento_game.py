@@ -3,6 +3,7 @@
 import os
 import pyglet
 import random
+import logging
 
 import server_management
 
@@ -69,6 +70,23 @@ def resize_images():
         resize_image(image, sprite_noise_picto)
 
 
+def process_game_stop():
+    if not game_state_running: 
+        logging.warning("Attempting to stop a game already stopped ??")
+    
+    game_state_running = False
+    timer.running = False
+    timer.reset()
+
+def process_game_start():
+	if game_state_running: 
+	    logging.warning("Attempting to start a game already started")
+    game_state_running = True
+    timer.reset()
+    timer.running = True
+    game_state_running = True
+
+
 class Board:
     def __init__(self):
         self.started = True
@@ -133,20 +151,8 @@ class Timer:
 
 @window.event
 def on_key_press(symbol, modifiers):
-    global game_state_running
-    if game_state_running == True: 
-        if symbol == pyglet.window.key.SPACE:
-            timer.reset()
-            timer.running = True
-
     if symbol == pyglet.window.key.ESCAPE:
         window.close()
-    elif symbol == pyglet.window.key.ENTER:
-        game_state_running = True
-        timer.reset()
-    elif symbol == pyglet.window.key.BACKSPACE:
-        game_state_running = False
-        timer.running = False
 
 
 @window.event
@@ -201,11 +207,12 @@ if __name__ == "__main__":
 
 
     server_management.send_request_score(100, ID_ROOM)
+
+    pyglet.clock.schedule_interval(check_server_command, 1 / 30)
+
     pyglet.clock.schedule_interval(timer.update, 1/30.0)
     pyglet.app.run()
 
 
-    #namespace = parser.parse_args()
-    #trio.run(main, namespace.bind, namespace.port, namespace.command)
 
 

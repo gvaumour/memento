@@ -1,10 +1,30 @@
 import json 
 
-def handle_request_error(dct):
-	print("Request is not formated properly")
-	print(dct)
 
-def parse_json(request, room_id):
+def is_stdin_ready():
+    read, _, _ = select.select([sys.stdin.fileno()], [], [], 0.0)
+    return bool(read)
+
+
+def check_command(_):
+    global total
+    if not is_stdin_ready():
+        return
+
+    command = sys.stdin.readline().strip()
+    parse_json_request(command)
+
+
+def handle_request_error(dct):
+	logging.error("JSON Request is not formated properly")
+    logging.error(dct)
+
+
+def parse_json(request):
+
+    global ROOM_ID
+    global game_state_running
+
 	dct = json.loads(request)
 
 	# Expecting event/value keys in the request
@@ -12,18 +32,13 @@ def parse_json(request, room_id):
 		handle_request_error()
 
 	# Request is not for me, drop it
-	if dct["value"] != room_id:
+	if dct["value"] != ROOM_ID:
 		return
 
 	if dct["event"] == "roomStarted":
-		if game_state_running: 
-			print("Game is already running ??")
-		game_state_running = True
-
+        process_game_start()
 	elif dct["event"] == "roomStopped":
-		if not game_state_running: 
-			print("Game is already stopped ??")
-		game_state_running = Flase
+        process_game_stop()
 	else:
 		handle_request_error(dct)
 
@@ -37,9 +52,10 @@ def parse_json(request, room_id):
 #    "score": 10500
 #  }
 #}
-def send_request_score(score, room_id):
+def send_request_score(score):
+    global ROOM_ID
 	request = dict()
 	request["event"] = "setScore"
-	request["value"] = { "idRoom" : room_id , "score" : score}
+	request["value"] = { "idRoom" : ROOM_ID, "score" : score}
 
 	print(json.dumps(request))
