@@ -14,7 +14,7 @@ def gpio_init():
 
 
 # Return the list of currently pressed buttons
-def check_buttons():
+def check_buttons(dt):
 	config.NB_BUTTONS
     
 	# Read all button states 

@@ -11,14 +11,11 @@ def is_stdin_ready():
 
 def check_server_command(_):
 
-    print("check_server_command")
     if not is_stdin_ready():
-        print("Not Ready")
         return
 
     command = sys.stdin.readline().strip()
     if not command or command == '\n': 
-        print("empty command")
         return 
     print(command)
     parse_json_request(command)
