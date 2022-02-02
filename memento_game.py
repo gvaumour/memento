@@ -73,14 +73,14 @@ def resize_images():
 def process_game_stop():
     if not game_state_running: 
         logging.warning("Attempting to stop a game already stopped ??")
-    
+
     game_state_running = False
     timer.running = False
     timer.reset()
 
 def process_game_start():
-	if game_state_running: 
-	    logging.warning("Attempting to start a game already started")
+    if game_state_running: 
+        logging.warning("Attempting to start a game already started")
     game_state_running = True
     timer.reset()
     timer.running = True

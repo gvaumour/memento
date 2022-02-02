@@ -17,14 +17,13 @@ def check_command(_):
 
 def handle_request_error(dct):
 	logging.error("JSON Request is not formated properly")
-    logging.error(dct)
+	logging.error(dct)
 
 
 def parse_json(request):
 
-    global ROOM_ID
-    global game_state_running
-
+	global ROOM_ID
+	global game_state_running
 	dct = json.loads(request)
 
 	# Expecting event/value keys in the request
@@ -36,9 +35,9 @@ def parse_json(request):
 		return
 
 	if dct["event"] == "roomStarted":
-        process_game_start()
+		process_game_start()
 	elif dct["event"] == "roomStopped":
-        process_game_stop()
+		process_game_stop()
 	else:
 		handle_request_error(dct)
 
