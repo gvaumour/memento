@@ -28,15 +28,15 @@ process_game_stop = False
 
 color_azur = (33, 163 , 179)
 color_lavande = (64, 70 , 153)
-
 color_black = (2, 2 , 2, 255)
 
+
 ## Launching configuration to smooth problems between ssh remote connection / windows non compatibility
+# For some reason, playing sound from a remote X11 session on raspberry is tricky 
+SOUND_MANAGEMENT = False # Must be True on production
 
-# For some reason, playing sound from a X session on raspberry is tricky
-SOUND_MANAGEMENT = False
-
-# If flag raised, all windows non compatible are not handled such as buttons press and server management
-RUNNING_ON_WINDOW = False
+# If flag raised, all Windows-specific stuff is not handled such as buttons press and server management
+# It allows to test on windows the game
+RUNNING_ON_WINDOW = False # Must be False on production
 
 ################################# 
