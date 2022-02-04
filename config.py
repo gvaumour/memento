@@ -18,10 +18,10 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 NB_BUTTONS = 20
 
 # Pictos printed on buttons 
-PATH_BUTTONS_PICTO = os.path.realpath(os.path.join(DIR_PATH, "./pictos/picto_button"))
+PATH_BUTTONS_PICTO = os.path.realpath(os.path.join(DIR_PATH, "./assets/images/picto_button"))
 
 # Picto not printed on buttons, they are called noise pictos
-PATH_NOISE_PICTO = os.path.realpath(os.path.join(DIR_PATH, "./pictos/picto_noise"))
+PATH_NOISE_PICTO = os.path.realpath(os.path.join(DIR_PATH, "./assets/images/picto_noise"))
 
 process_game_start = False
 process_game_stop = False

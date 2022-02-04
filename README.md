@@ -10,7 +10,7 @@ It interacts with a centralized server that sends json requests through websocke
 The script runs with python3-8-10, the game engine use the pyglet package v1.5.21
 
 ````
-apt-get install python3 python3-dev i2c-tools
+apt-get install python3 python3-dev i2c-tools ffmpeg
 pip3 install pyglet RPi.GPIO smbus
 ````
 

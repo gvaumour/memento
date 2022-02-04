@@ -192,13 +192,13 @@ sprite_noise_picto = []
 resize_images()
 
 
-background = pyglet.image.load( os.path.join(config.DIR_PATH, "./pictos/background.png"))
+background = pyglet.image.load( os.path.join(config.DIR_PATH, "./assets/images/background.png"))
 background.anchor_x = background.width // 2
 background.anchor_y = background.height // 2
 background_sprite = pyglet.sprite.Sprite(background, x=window.width//2, y = window.height//2)
 background_sprite.scale = 2
 
-pyglet.font.add_file("Gobold_Light.ttf")
+pyglet.font.add_file(os.path.join(config.DIR_PATH, "./assets/fonts/Gobold_Light.ttf"))
 gobold_light = pyglet.font.load("Gobold_Light.ttf")
 
 # Instantiate the game elements
