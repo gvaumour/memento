@@ -5,9 +5,12 @@ import pyglet
 import random
 import logging
 
-#import gpio_management
-#import server_management
 import config 
+
+if not config.RUNNING_ON_WINDOW:
+    import server_management
+    import gpio_management
+
 
 window = pyglet.window.Window(fullscreen=True)
 
@@ -80,7 +83,7 @@ class Board:
 
     def do_next_round(self, play_sound = True):
 
-        if play_sound:
+        if play_sound and config.SOUND_MANAGEMENT:
             loose_sound.play()
 
         self.displayed_noise_picto = random.sample(sprite_noise_picto, k = config.NB_NOISE_PICTO)
@@ -206,9 +209,10 @@ pyglet.font.add_file(os.path.join(config.DIR_PATH, "./assets/fonts/Gobold_Light.
 gobold_light = pyglet.font.load("Gobold_Light.ttf")
 
 # Sounds import
-pyglet.options['audio'] = ('openal', 'pulse', 'directsound', 'silent')
-win_sound = pyglet.media.load(os.path.join(config.DIR_PATH, "./assets/sounds/win-sound.mp3"))
-loose_sound = pyglet.media.load(os.path.join(config.DIR_PATH, "./assets/sounds/loose-sound.mp3"))
+if config.SOUND_MANAGEMENT:
+    pyglet.options['audio'] = ('openal', 'pulse', 'directsound', 'silent')
+    win_sound = pyglet.media.load(os.path.join(config.DIR_PATH, "./assets/sounds/win-sound.mp3"))
+    loose_sound = pyglet.media.load(os.path.join(config.DIR_PATH, "./assets/sounds/loose-sound.mp3"))
 
 # Instantiate the game elements
 timer = Timer()
@@ -219,15 +223,21 @@ waiting_label = pyglet.text.Label('MEMENTO', font_size=100,
                                    anchor_x='center', anchor_y='center')
 
 
-timer.running =  True
-game_state_running = True
 game_score = 0
-
+if not config.RUNNING_ON_WINDOW:
+    timer.running =  False
+    game_state_running = False
+else :
+    timer.running =  True
+    game_state_running = True
 
 if __name__ == "__main__":
-#    pyglet.clock.schedule_interval(server_management.check_server_command, 1 / 30)
+
+    if not config.RUNNING_ON_WINDOW:
+        pyglet.clock.schedule_interval(check_raspi_buttons, 1 / 30)
+        pyglet.clock.schedule_interval(server_management.check_server_command, 1 / 30)
+
     pyglet.clock.schedule_interval(check_game_start, 1 / 30)
-#    pyglet.clock.schedule_interval(check_raspi_buttons, 1 / 30)
     pyglet.clock.schedule_interval(timer.update, 1/30.0)
     pyglet.app.run()
 
