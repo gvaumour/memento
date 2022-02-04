@@ -5,16 +5,11 @@ import pyglet
 import random
 import logging
 
-import gpio_management
-import server_management
+#import gpio_management
+#import server_management
 import config 
 
-
-
 window = pyglet.window.Window(fullscreen=True)
-
-game_state_running = True
-game_score = 0
 
 picto_position = [ [window.width/2+25, window.height/2 + window.height*config.POS_PICTO_Y+35], 
                    [window.width/2-40, window.height/2 - window.height*config.POS_PICTO_Y-50],
@@ -81,9 +76,13 @@ def check_game_start(_):
 class Board:
     def __init__(self):
         self.started = True
-        self.do_next_round()
+        self.do_next_round(play_sound = False)
 
-    def do_next_round(self):
+    def do_next_round(self, play_sound = True):
+
+        if play_sound:
+            loose_sound.play()
+
         self.displayed_noise_picto = random.sample(sprite_noise_picto, k = config.NB_NOISE_PICTO)
         self.displayed_button_picto = random.sample(sprite_buttons_picto, k = 1)[0]
 
@@ -180,6 +179,9 @@ def on_draw():
         waiting_label.draw()
 
 
+##### Assets Imports
+
+# Imports Images 
 path_buttons_picto = [os.path.join(config.PATH_BUTTONS_PICTO, f) for f in os.listdir(config.PATH_BUTTONS_PICTO) if isCorrectPicto(os.path.join(config.PATH_BUTTONS_PICTO, f))]
 path_noise_picto = [os.path.join(config.PATH_NOISE_PICTO, f) for f in os.listdir(config.PATH_NOISE_PICTO) if isCorrectPicto(os.path.join(config.PATH_NOISE_PICTO, f))]
 
@@ -189,6 +191,7 @@ img_noise_picto = [pyglet.image.load(f) for f in path_noise_picto]
 sprite_buttons_picto = []
 sprite_noise_picto = []
 
+# Create sprites with correct size
 resize_images()
 
 
@@ -198,23 +201,33 @@ background.anchor_y = background.height // 2
 background_sprite = pyglet.sprite.Sprite(background, x=window.width//2, y = window.height//2)
 background_sprite.scale = 2
 
+# Font import
 pyglet.font.add_file(os.path.join(config.DIR_PATH, "./assets/fonts/Gobold_Light.ttf"))
 gobold_light = pyglet.font.load("Gobold_Light.ttf")
+
+# Sounds import
+pyglet.options['audio'] = ('openal', 'pulse', 'directsound', 'silent')
+win_sound = pyglet.media.load(os.path.join(config.DIR_PATH, "./assets/sounds/win-sound.mp3"))
+loose_sound = pyglet.media.load(os.path.join(config.DIR_PATH, "./assets/sounds/loose-sound.mp3"))
 
 # Instantiate the game elements
 timer = Timer()
 score = Score()
 board = Board()
-timer.running =  True
-
 waiting_label = pyglet.text.Label('MEMENTO', font_size=100, 
                                    x=window.width//2, y= window.height//2,
                                    anchor_x='center', anchor_y='center')
 
+
+timer.running =  True
+game_state_running = True
+game_score = 0
+
+
 if __name__ == "__main__":
-    pyglet.clock.schedule_interval(server_management.check_server_command, 1 / 30)
+#    pyglet.clock.schedule_interval(server_management.check_server_command, 1 / 30)
     pyglet.clock.schedule_interval(check_game_start, 1 / 30)
-    pyglet.clock.schedule_interval(check_raspi_buttons, 1 / 30)
+#    pyglet.clock.schedule_interval(check_raspi_buttons, 1 / 30)
     pyglet.clock.schedule_interval(timer.update, 1/30.0)
     pyglet.app.run()
 
