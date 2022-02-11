@@ -14,8 +14,8 @@ POS_PICTO_Y = 0.27    # Ratio for positionning picto Y axis
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
-# There are 40 buttons, each picto is attached to 2 buttons
-NB_BUTTONS = 20
+# There are 40 buttons, each picto is attached to 4 buttons:4x10
+NB_BUTTONS = 10
 
 # Pictos printed on buttons 
 PATH_BUTTONS_PICTO = os.path.realpath(os.path.join(DIR_PATH, "./assets/images/picto_button"))

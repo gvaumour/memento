@@ -55,7 +55,7 @@ fi
 while :
 do
 	echo "Connecting to the websocket server $SERVER:$PORT ..."
-	cat fifo_memento | websocat -E $SERVER:$PORT | python ./memento_game.py > fifo_memento
+	tail -f fifo_memento | websocat -E $SERVER:$PORT | python ./memento_game.py > fifo_memento
 	echo "Memento game has been stopped, attempt to relaunching it"
 	sleep 1
 done

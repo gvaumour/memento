@@ -16,8 +16,8 @@ def check_server_command(_):
         return
 
     command = sys.stdin.readline().strip()
-    if not command or command == '\n': 
-        return 
+    if command == "":
+       return
     #print(command)
     parse_json_request(command)
 
